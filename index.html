@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en" class="no-js is-loading">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>devbyfarhad — Creative Frontend Developer</title>
+<meta name="description" content="Portfolio of devbyfarhad: creative frontend developer building 3D, motion-rich and multilingual websites with Three.js and GSAP.">
+<meta name="theme-color" content="#070709">
+<meta property="og:type" content="website">
+<meta property="og:title" content="devbyfarhad — Creative Frontend Developer">
+<meta property="og:description" content="3D, motion and multilingual websites built with Three.js and GSAP.">
+<meta property="og:url" content="https://boss-ui24.github.io/">
+<meta property="og:image" content="https://boss-ui24.github.io/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://boss-ui24.github.io/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://api.github.com" crossorigin>
+<!-- Все три шрифта проверены на «Ə/ə» и кириллицу -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Playfair+Display:ital,wght@1,400..700&family=Roboto+Flex:opsz,wdth,wght@8..144,25..151,100..1000&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  /* Язык выставляем до первой отрисовки: ?lang= → сохранённый → язык браузера */
+  (function () {
+    var d = document.documentElement, l;
+    d.classList.replace('no-js', 'js');
+    try { l = new URLSearchParams(location.search).get('lang') || localStorage.getItem('dbf-lang'); } catch (e) {}
+    if (!l) { var n = (navigator.language || 'en').slice(0, 2).toLowerCase(); l = n === 'ru' || n === 'az' ? n : 'en'; }
+    if (l === 'az' || l === 'ru' || l === 'en') d.lang = l;
+  })();
+</script>
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="a11y.skip">Skip to content</a>
+
+<!-- Фильтр «волна» для картинок проектов при наведении -->
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="warp" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.008 0.022" numOctaves="2" seed="11" result="noise"/>
+    <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" data-warp/>
+  </filter>
+</svg>
+
+<div class="bg" aria-hidden="true"><i class="bg__glow bg__glow--a"></i><i class="bg__glow bg__glow--b"></i></div>
+<!-- Частицы Three.js: одна система на всю страницу, по скроллу меняет форму -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+<div class="progress" aria-hidden="true"><i data-progress></i></div>
+
+<div class="cursor" aria-hidden="true">
+  <div class="cursor__ring"><span class="cursor__label" data-cursor-label></span></div>
+  <div class="cursor__dot"></div>
+</div>
+
+<!-- Прелоадер: приветствия на разных языках, счётчик и шторка с изогнутым краем -->
+<div class="preloader" data-preloader>
+  <div class="preloader__panel">
+    <p class="preloader__greet"><i class="preloader__dot"></i><span data-greet>Hello</span></p>
+    <div class="preloader__foot">
+      <span class="preloader__brand mono">devbyfarhad — portfolio ©<span data-year>2026</span></span>
+      <span class="preloader__count"><span data-count>0</span><small>%</small></span>
+    </div>
+    <div class="preloader__bar"><i data-pre-bar></i></div>
+  </div>
+  <svg class="preloader__curve" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true">
+    <path data-curve d="M0 0 L1000 0 Q500 120 0 0 Z"/>
+  </svg>
+</div>
+
+<!-- Шторка смены языка -->
+<div class="wipe" aria-hidden="true">
+  <div class="wipe__panel"><span class="wipe__label" data-wipe-label>EN</span></div>
+</div>
+
+<header class="header" data-header>
+  <a class="logo" href="#top" data-magnetic="0.25" aria-label="devbyfarhad">
+    <i class="logo__mark" aria-hidden="true"></i>
+    <span class="logo__text" data-logo>devbyfarhad</span>
+  </a>
+  <nav class="nav" aria-label="Main">
+    <a href="#about" data-nav="about"><span class="roll"><span data-i18n="nav.about" data-text="About">About</span></span></a>
+    <a href="#work" data-nav="work"><span class="roll"><span data-i18n="nav.work" data-text="Work">Work</span></span></a>
+    <a href="#toolbox" data-nav="toolbox"><span class="roll"><span data-i18n="nav.toolbox" data-text="Toolbox">Toolbox</span></span></a>
+    <a href="#process" data-nav="process"><span class="roll"><span data-i18n="nav.process" data-text="Process">Process</span></span></a>
+    <a href="#github" data-nav="github"><span class="roll"><span data-i18n="nav.github" data-text="GitHub">GitHub</span></span></a>
+    <a href="#contact" data-nav="contact"><span class="roll"><span data-i18n="nav.contact" data-text="Contact">Contact</span></span></a>
+    <i class="nav__pill" aria-hidden="true"></i>
+  </nav>
+  <div class="header__end">
+    <span class="status" data-status><i></i><span data-i18n="status">Open to projects</span></span>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      <button type="button" data-lang="ru" aria-pressed="false">RU</button>
+      <button type="button" data-lang="az" aria-pressed="false">AZ</button>
+      <i class="lang__pill" aria-hidden="true"></i>
+    </div>
+    <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger data-i18n-attr="aria-label:menu.open" aria-label="Menu"><span></span><span></span></button>
+  </div>
+</header>
+
+<!-- Мобильное меню: раскрывается кругом из бургера -->
+<div class="menu" id="menu" data-menu aria-hidden="true">
+  <nav class="menu__nav" aria-label="Mobile">
+    <a href="#about"><span class="menu__num mono">01</span><span data-i18n="nav.about">About</span></a>
+    <a href="#work"><span class="menu__num mono">02</span><span data-i18n="nav.work">Work</span></a>
+    <a href="#toolbox"><span class="menu__num mono">03</span><span data-i18n="nav.toolbox">Toolbox</span></a>
+    <a href="#process"><span class="menu__num mono">04</span><span data-i18n="nav.process">Process</span></a>
+    <a href="#github"><span class="menu__num mono">05</span><span data-i18n="nav.github">GitHub</span></a>
+    <a href="#contact"><span class="menu__num mono">06</span><span data-i18n="nav.contact">Contact</span></a>
+  </nav>
+  <div class="menu__foot mono">
+    <a href="https://github.com/boss-ui24" target="_blank" rel="noopener" data-gh-link>GitHub ↗</a>
+    <span><span data-city>Baku</span> · <span data-clock>--:--</span></span>
+  </div>
+</div>
+
+<!-- Индикатор секции -->
+<div class="hud mono" aria-hidden="true">
+  <span class="hud__num" data-hud-num>00</span>
+  <span class="hud__track"><i data-hud-bar></i></span>
+  <span class="hud__name" data-hud-name>Intro</span>
+</div>
+
+<main id="main">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="top" data-section="intro" data-shape="0">
+    <div class="hero__top wrap">
+      <p class="eyebrow"><i class="eyebrow__dot"></i><span data-roles>Creative Frontend Developer</span></p>
+      <p class="hero__time mono"><span data-i18n="hero.time">Local time</span> · <span data-city>Baku</span> <b data-clock>--:--</b></p>
+    </div>
+    <h1 class="hero__title wrap" data-hero-title>
+      <span class="hero__line" data-i18n="hero.l1">Turning ideas</span>
+      <span class="hero__line hero__line--2" data-i18n-html="hero.l2">into <em>reality</em></span>
+      <span class="hero__line" data-i18n="hero.l3">through code.</span>
+    </h1>
+    <div class="hero__bottom wrap">
+      <p class="hero__lead" data-i18n="hero.lead">I'm Farhad — a frontend developer from Baku. I build fast, multilingual websites with 3D scenes and motion that people actually remember.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--accent" href="#work" data-magnetic>
+          <span class="btn__fill"></span>
+          <span class="roll"><span data-i18n="hero.cta" data-text="See my work">See my work</span></span>
+          <svg class="btn__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a class="btn btn--ghost" href="https://github.com/boss-ui24" target="_blank" rel="noopener" data-magnetic data-gh-link>
+          <span class="btn__fill"></span>
+          <span class="roll"><span data-text="GitHub">GitHub</span></span>
+          <svg class="btn__arrow btn__arrow--out" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+        </a>
+      </div>
+      <a class="hero__scroll mono" href="#about"><span data-i18n="hero.scroll">Scroll to explore</span><i class="hero__scroll-line"></i></a>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section class="about section" id="about" data-section="about" data-shape="1">
+    <div class="wrap">
+      <header class="sec-head"><span class="sec-head__idx">(01)</span><span data-i18n="nav.about">About</span><i class="sec-head__line"></i></header>
+      <p class="about__text" data-words data-i18n-html="about.text">Hi, I'm Farhad — a frontend developer who turns ideas into <em>living</em> interfaces.</p>
+      <ul class="stats">
+        <li class="stat" data-reveal><b class="stat__num"><span data-count-to="10">10</span><sup>+</sup></b><span class="stat__label" data-i18n="about.s1">animation &amp; 3D libraries in production</span></li>
+        <li class="stat" data-reveal><b class="stat__num"><span data-count-to="3">3</span></b><span class="stat__label" data-i18n="about.s2">languages in my interfaces — AZ · RU · EN</span></li>
+        <li class="stat" data-reveal><b class="stat__num"><span data-count-to="60">60</span><sup>fps</sup></b><span class="stat__label" data-i18n="about.s3">the bar for every animation</span></li>
+        <li class="stat" data-reveal><b class="stat__num"><span data-count-to="2" data-gh-repos>2</span></b><span class="stat__label" data-i18n="about.s4">public repositories on GitHub — live</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ SERVICES ============ -->
+  <section class="services section" id="services" data-section="services" data-shape="2">
+    <div class="wrap">
+      <header class="sec-head"><span class="sec-head__idx">(02)</span><span data-i18n="nav.services">Services</span><i class="sec-head__line"></i></header>
+      <h2 class="h2" data-split data-i18n-html="services.title">What I <em>do</em></h2>
+      <div class="services__grid">
+        <article class="svc" data-reveal>
+          <span class="svc__num mono">01</span>
+          <svg class="svc__icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 5 56 18.5v27L32 59 8 45.5v-27Z"/><path d="M8 18.5 32 32l24-13.5M32 32v27"/><path d="M20 11.8 44 25.2" opacity=".45"/></svg>
+          <h3 class="svc__title" data-i18n="services.s1.t">3D &amp; WebGL</h3>
+          <p class="svc__text" data-i18n="services.s1.d">Interactive Three.js scenes, procedural models built in code, custom shaders and particle systems.</p>
+          <ul class="svc__tags mono"><li>Three.js</li><li>GLSL</li><li>CSS 3D</li></ul>
+        </article>
+        <article class="svc" data-reveal>
+          <span class="svc__num mono">02</span>
+          <svg class="svc__icon" viewBox="0 0 64 64" aria-hidden="true"><path d="M6 50C26 50 22 14 42 14c9 0 12 7 16 7"/><path d="M6 50 22 33M42 14l12-8" opacity=".45"/><circle cx="6" cy="50" r="3.5"/><circle cx="42" cy="14" r="3.5"/><circle cx="58" cy="21" r="2.5"/></svg>
+          <h3 class="svc__title" data-i18n="services.s2.t">Motion &amp; interaction</h3>
+          <p class="svc__text" data-i18n="services.s2.d">Scroll storytelling with GSAP, page transitions, micro-interactions and smooth scrolling.</p>
+          <ul class="svc__tags mono"><li>GSAP</li><li>ScrollTrigger</li><li>Lenis</li></ul>
+        </article>
+        <article class="svc" data-reveal>
+          <span class="svc__num mono">03</span>
+          <svg class="svc__icon" viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="9" width="54" height="46" rx="7"/><path d="M5 21h54"/><circle cx="12" cy="15" r="1.6"/><circle cx="18" cy="15" r="1.6"/><circle cx="24" cy="15" r="1.6"/><path d="M15 32h20M15 40h32M15 47h13" opacity=".6"/></svg>
+          <h3 class="svc__title" data-i18n="services.s3.t">Websites &amp; landing pages</h3>
+          <p class="svc__text" data-i18n="services.s3.d">Promo sites, landing pages and portfolios from scratch: semantic HTML, modern CSS, vanilla JavaScript.</p>
+          <ul class="svc__tags mono"><li>HTML</li><li>CSS</li><li>JavaScript</li></ul>
+        </article>
+        <article class="svc" data-reveal>
+          <span class="svc__num mono">04</span>
+          <svg class="svc__icon" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26"/><ellipse cx="32" cy="32" rx="11" ry="26"/><path d="M6 32h52M10 19h44M10 45h44" opacity=".6"/></svg>
+          <h3 class="svc__title" data-i18n="services.s4.t">Multilingual &amp; responsive</h3>
+          <p class="svc__text" data-i18n="services.s4.d">Interfaces in Azerbaijani, Russian and English, tuned for every screen.</p>
+          <ul class="svc__tags mono"><li>AZ · RU · EN</li><li>Mobile-first</li><li>a11y</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORK: горизонтальная лента с закреплением ============ -->
+  <section class="work" id="work" data-section="work" data-shape="3">
+    <div class="work__pin">
+      <div class="work__track" data-track>
+        <div class="work__intro">
+          <header class="sec-head"><span class="sec-head__idx">(03)</span><span data-i18n="nav.work">Work</span><i class="sec-head__line"></i></header>
+          <h2 class="h2" data-split data-i18n-html="work.title">Selected <em>work</em></h2>
+          <p class="work__sub" data-i18n="work.sub">Real projects with live demos and source code. Click a card to open the case.</p>
+          <p class="work__count mono"><b data-work-current>01</b> / <span data-work-total>04</span></p>
+        </div>
+        <!-- карточки проектов рисует app.js из config.js -->
+      </div>
+      <div class="work__bar" aria-hidden="true"><i data-work-bar></i></div>
+    </div>
+  </section>
+
+  <!-- ============ TOOLBOX: бегущая строка + физика ============ -->
+  <section class="toolbox section" id="toolbox" data-section="toolbox" data-shape="4">
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__row" data-marquee="1"><div class="marquee__inner" data-marquee-inner></div></div>
+      <div class="marquee__row marquee__row--alt" data-marquee="-1"><div class="marquee__inner" data-marquee-inner></div></div>
+    </div>
+    <div class="wrap">
+      <header class="sec-head"><span class="sec-head__idx">(04)</span><span data-i18n="nav.toolbox">Toolbox</span><i class="sec-head__line"></i></header>
+      <div class="toolbox__head">
+        <h2 class="h2" data-split data-i18n-html="toolbox.title">My <em>toolbox</em></h2>
+        <div class="toolbox__aside" data-reveal>
+          <p data-i18n="toolbox.hint">Grab a pill and throw it — physics by Matter.js.</p>
+          <button class="btn btn--ghost btn--sm" type="button" data-shake data-magnetic>
+            <span class="btn__fill"></span>
+            <span class="roll"><span data-i18n="toolbox.shake" data-text="Shake it">Shake it</span></span>
+          </button>
+        </div>
+      </div>
+      <div class="pit" data-pit>
+        <p class="pit__hint mono" aria-hidden="true">drag · throw · repeat</p>
+        <!-- капсулы рисует physics.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section class="process section" id="process" data-section="process" data-shape="5">
+    <div class="wrap">
+      <header class="sec-head"><span class="sec-head__idx">(05)</span><span data-i18n="nav.process">Process</span><i class="sec-head__line"></i></header>
+      <h2 class="h2" data-split data-i18n-html="process.title">How I <em>work</em></h2>
+      <div class="process__wrap" data-process>
+        <svg class="process__svg" aria-hidden="true"><path class="process__track" data-proc-track/><path class="process__path" data-proc-path/></svg>
+        <span class="process__dot" data-proc-dot aria-hidden="true"></span>
+        <ol class="steps">
+          <li class="step">
+            <span class="step__num mono">01</span>
+            <div class="step__card">
+              <h3 class="step__title" data-i18n="process.1.t">Discover</h3>
+              <p data-i18n="process.1.d">We talk through goals, audience and references.</p>
+              <p class="step__tags mono" data-i18n="process.1.k">Brief · Goals · References</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step__num mono">02</span>
+            <div class="step__card">
+              <h3 class="step__title" data-i18n="process.2.t">Design</h3>
+              <p data-i18n="process.2.d">Moodboard, structure and motion concept.</p>
+              <p class="step__tags mono" data-i18n="process.2.k">Moodboard · Structure · Motion</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step__num mono">03</span>
+            <div class="step__card">
+              <h3 class="step__title" data-i18n="process.3.t">Develop</h3>
+              <p data-i18n="process.3.d">Clean, modular code with 3D and animation built in.</p>
+              <p class="step__tags mono" data-i18n="process.3.k">Code · 3D · Animation</p>
+            </div>
+          </li>
+          <li class="step">
+            <span class="step__num mono">04</span>
+            <div class="step__card">
+              <h3 class="step__title" data-i18n="process.4.t">Launch</h3>
+              <p data-i18n="process.4.d">Testing on real devices, performance tuning and deployment.</p>
+              <p class="step__tags mono" data-i18n="process.4.k">Testing · Speed · Deploy</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ GITHUB: живые данные из API ============ -->
+  <section class="github section" id="github" data-section="github" data-shape="6">
+    <div class="wrap">
+      <header class="sec-head"><span class="sec-head__idx">(06)</span><span>GitHub</span><i class="sec-head__line"></i></header>
+      <div class="github__head">
+        <h2 class="h2" data-split data-i18n-html="github.title">Live from <em>GitHub</em></h2>
+        <p class="github__sub" data-reveal data-i18n="github.sub">This block pulls data straight from the GitHub API.</p>
+      </div>
+      <div class="gh" data-gh>
+        <article class="gh__profile" data-reveal>
+          <div class="gh__who">
+            <div class="gh__avatar"><img data-gh-avatar src="https://avatars.githubusercontent.com/u/310690849?v=4&amp;s=160" alt="" width="80" height="80" loading="lazy"></div>
+            <div>
+              <h3 class="gh__name" data-gh-name>devbyfarhad</h3>
+              <a class="gh__login mono" data-gh-login href="https://github.com/boss-ui24" target="_blank" rel="noopener">@boss-ui24</a>
+            </div>
+          </div>
+          <p class="gh__bio" data-gh-bio>Turning ideas into reality through code.</p>
+          <ul class="gh__stats">
+            <li><b data-gh-stat="public_repos">0</b><span data-i18n="github.repos">Repositories</span></li>
+            <li><b data-gh-stat="followers">0</b><span data-i18n="github.followers">Followers</span></li>
+            <li><b data-gh-stat="following">0</b><span data-i18n="github.following">Following</span></li>
+          </ul>
+          <p class="gh__since mono"><span data-i18n="github.since">On GitHub since</span> <span data-gh-since>—</span></p>
+          <a class="btn btn--ghost btn--sm" href="https://github.com/boss-ui24" target="_blank" rel="noopener" data-magnetic data-gh-link>
+            <span class="btn__fill"></span>
+            <span class="roll"><span data-i18n="github.follow" data-text="Follow on GitHub">Follow on GitHub</span></span>
+            <svg class="btn__arrow btn__arrow--out" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+          </a>
+        </article>
+        <div class="term" data-reveal>
+          <div class="term__bar"><i></i><i></i><i></i><span class="mono">~/boss-ui24 — zsh</span></div>
+          <pre class="term__body" data-term></pre>
+        </div>
+        <div class="gh__repos" data-gh-repos-list></div>
+        <div class="gh__langs" data-reveal>
+          <p class="mono gh__langs-title" data-i18n="github.langs">Languages</p>
+          <div class="langbar" data-langbar></div>
+          <ul class="langlist mono" data-langlist></ul>
+        </div>
+      </div>
+      <p class="gh__note mono" data-gh-note hidden></p>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section class="contact section" id="contact" data-section="contact" data-shape="7">
+    <div class="wrap contact__wrap">
+      <header class="sec-head"><span class="sec-head__idx">(07)</span><span data-i18n="nav.contact">Contact</span><i class="sec-head__line"></i></header>
+      <h2 class="contact__title" data-chars data-i18n-html="contact.title">Have an idea?<br>Let's make it <em>real</em>.</h2>
+      <div class="contact__row">
+        <p class="contact__text" data-reveal data-i18n="contact.text">Open to freelance projects and collaborations.</p>
+        <a class="contact__btn" href="https://github.com/boss-ui24" data-contact-main data-magnetic="0.45">
+          <span class="contact__btn-fill"></span>
+          <span class="contact__btn-text" data-i18n="contact.btn">Say hello</span>
+        </a>
+      </div>
+      <ul class="contact__links" data-contact-links></ul>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <p class="footer__big" data-footer-big aria-label="devbyfarhad">devbyfarhad</p>
+  <div class="footer__row wrap mono">
+    <span>© <span data-year>2026</span> devbyfarhad</span>
+    <span data-i18n="footer.built">Built with GSAP, Three.js, Lenis &amp; Matter.js</span>
+    <button class="totop" type="button" data-totop data-magnetic><span class="roll"><span data-i18n="footer.top" data-text="Back to top">Back to top</span></span> ↑</button>
+  </div>
+</footer>
+
+<!-- Кейс проекта: картинка «вылетает» из карточки через GSAP Flip -->
+<div class="case" data-case role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="case-title">
+  <div class="case__backdrop" data-case-close></div>
+  <div class="case__panel" data-lenis-prevent>
+    <button class="case__close" type="button" data-case-close data-magnetic data-i18n-attr="aria-label:work.close" aria-label="Close"><span></span><span></span></button>
+    <div class="case__media"><img data-case-img alt=""></div>
+    <div class="case__body">
+      <p class="case__top mono"><span data-case-num>01</span><span data-case-kind></span></p>
+      <h3 class="case__title" id="case-title" data-case-title></h3>
+      <p class="case__desc" data-case-desc></p>
+      <dl class="case__meta">
+        <div><dt class="mono" data-i18n="work.role">Role</dt><dd data-case-role></dd></div>
+        <div><dt class="mono" data-i18n="work.year">Year</dt><dd data-case-year></dd></div>
+        <div><dt class="mono" data-i18n="work.stack">Stack</dt><dd data-case-stack></dd></div>
+      </dl>
+      <h4 class="case__h mono" data-i18n="work.features">Highlights</h4>
+      <ul class="case__features" data-case-features></ul>
+      <div class="case__links" data-case-links></div>
+      <div class="case__gallery" data-case-gallery></div>
+    </div>
+  </div>
+</div>
+
+<!-- Плагины: GSAP 3.13 (все плагины бесплатные), Lenis, Matter.js; Three.js грузится модулем из scene.js -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrambleTextPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/Flip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/DrawSVGPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/MotionPathPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/CustomEase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.4/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/matter-js@0.20.0/build/matter.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/github.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
